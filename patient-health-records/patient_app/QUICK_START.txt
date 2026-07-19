@@ -1,0 +1,150 @@
+================================================================================
+    PATIENT HEALTH RECORDS - FLUTTER APP QUICK START GUIDE
+================================================================================
+
+YOUR DEVICE IS READY: CPH2487 (Android 16) - Device ID: ee82e4ce
+
+================================================================================
+STEP 1: UPDATE BACKEND URL (CRITICAL!)
+================================================================================
+
+1. Find your computer's IP address:
+   
+   Open PowerShell and run:
+   > ipconfig
+   
+   Look for "IPv4 Address" (e.g., 192.168.1.100)
+
+2. Edit this file:
+   patient-health-records/patient_app/lib/providers/auth_provider.dart
+
+3. On line 15, change:
+   static const String baseUrl = 'http://10.0.2.2:5000/api';
+   
+   To (replace with YOUR IP):
+   static const String baseUrl = 'http://192.168.1.100:5000/api';
+
+4. IMPORTANT: Your phone and computer must be on the same Wi-Fi network!
+
+================================================================================
+STEP 2: START BACKEND SERVER
+================================================================================
+
+Make sure your Node.js backend is running on port 5000.
+
+Test it works:
+> curl http://localhost:5000
+
+================================================================================
+STEP 3: DEPLOY TO DEVICE
+================================================================================
+
+Option A - Quick Deploy (Recommended):
+--------------------------------------
+> cd patient-health-records/patient_app
+> flutter run -d ee82e4ce
+
+This will build, install, and run the app with hot reload enabled.
+First build takes 5-10 minutes (downloads Gradle dependencies).
+
+Option B - Build APK First:
+---------------------------
+> cd patient-health-records/patient_app
+> flutter build apk --debug
+> adb install build/app/outputs/flutter-apk/app-debug.apk
+
+================================================================================
+STEP 4: TEST THE APP
+================================================================================
+
+Login credentials:
+  Email: patient1@example.com
+  Password: patient123
+
+Expected behavior:
+✓ Login screen loads
+✓ Can enter email and password
+✓ Login button submits credentials
+✓ On success: Dashboard screen shows patient info
+✓ On failure: Error message displays
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Problem: "Network Error" in app
+Solution: 
+  - Check backend is running
+  - Verify IP address in auth_provider.dart
+  - Both devices on same Wi-Fi
+  - Allow port 5000 in firewall
+
+Problem: Device not authorized
+Solution:
+  - Check phone for USB debugging prompt
+  - Tap "Always allow"
+  - Run: adb kill-server && adb devices
+
+Problem: Build stuck/taking forever
+Solution:
+  - First build is slow (10 min) - be patient!
+  - If truly stuck after 15 min, press Ctrl+C and retry
+  - Run: flutter clean && flutter pub get
+
+================================================================================
+PROJECT FILES
+================================================================================
+
+Key files created:
+  lib/main.dart                    - App entry point
+  lib/providers/auth_provider.dart - Authentication logic (UPDATE THIS!)
+  lib/screens/login_screen.dart    - Login UI
+  lib/screens/home_screen.dart     - Dashboard UI
+
+Documentation:
+  README.md              - Full documentation
+  DEPLOY_TO_DEVICE.md    - Detailed deployment guide
+  run.ps1                - Quick deployment script
+
+================================================================================
+VERIFICATION CHECKLIST
+================================================================================
+
+Before deploying:
+[ ] Backend server running on port 5000
+[ ] Found your computer's IP address
+[ ] Updated baseUrl in auth_provider.dart
+[ ] Phone and computer on same Wi-Fi
+[ ] USB debugging enabled on phone
+[ ] Device authorized (check with: adb devices)
+
+Ready to deploy:
+[ ] Run: flutter run -d ee82e4ce
+
+================================================================================
+WHAT'S INCLUDED
+================================================================================
+
+✓ Patient login with email/password
+✓ JWT token authentication
+✓ Persistent login (stays logged in)
+✓ Patient dashboard
+✓ Material Design 3 UI
+✓ Form validation
+✓ Error handling
+✓ Logout functionality
+
+================================================================================
+SUPPORT & NEXT STEPS
+================================================================================
+
+After successful login, you can extend the app with:
+  - Patient registration
+  - Medical records display
+  - Appointment booking
+  - Medication tracking
+  - Profile management
+
+All screens use the AuthProvider for authentication state.
+
+================================================================================

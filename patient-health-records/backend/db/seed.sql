@@ -1,0 +1,4 @@
+-- Prefer `npm run db:seed` so the password is hashed with bcryptjs.
+-- This file documents the default master admin account:
+-- email: admin@hospital.com
+-- password: admin123
