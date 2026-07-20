@@ -17,10 +17,14 @@ export default function CreatePatient() {
     first_name: '',
     last_name: '',
     date_of_birth: '',
+    blood_group: '',
     govt_id_type: 'aadhar',
     govt_id_number: '',
     govt_id_proof_url: '',
     nearby_hospital_name: '',
+    emergency_contact_name: '',
+    emergency_contact_phone: '',
+    emergency_contact_relation: '',
   });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -85,6 +89,20 @@ export default function CreatePatient() {
               <Field label="Password" name="password" type="password" value={formData.password} onChange={handleChange} required />
               <Field label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} required />
               <div className="space-y-2">
+                <Label>Blood Group</Label>
+                <Select name="blood_group" value={formData.blood_group} onChange={handleChange}>
+                  <option value="">Select Blood Group</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </Select>
+              </div>
+              <div className="space-y-2">
                 <Label>Government ID Type</Label>
                 <Select name="govt_id_type" value={formData.govt_id_type} onChange={handleChange}>
                   <option value="aadhar">Aadhar</option>
@@ -96,6 +114,9 @@ export default function CreatePatient() {
               <Field label="Government ID Number" name="govt_id_number" value={formData.govt_id_number} onChange={handleChange} required />
               <Field label="Government ID Proof URL" name="govt_id_proof_url" type="url" value={formData.govt_id_proof_url} onChange={handleChange} />
               <Field label="Nearby Hospital" name="nearby_hospital_name" value={formData.nearby_hospital_name} onChange={handleChange} />
+              <Field label="Emergency Contact Name" name="emergency_contact_name" value={formData.emergency_contact_name} onChange={handleChange} />
+              <Field label="Emergency Contact Phone" name="emergency_contact_phone" value={formData.emergency_contact_phone} onChange={handleChange} />
+              <Field label="Emergency Contact Relation" name="emergency_contact_relation" value={formData.emergency_contact_relation} onChange={handleChange} />
             </div>
             <Button type="submit">Create Patient</Button>
           </form>

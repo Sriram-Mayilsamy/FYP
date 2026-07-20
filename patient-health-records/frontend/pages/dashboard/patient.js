@@ -136,7 +136,14 @@ export default function PatientDashboard() {
                       {patient.first_name} {patient.last_name}
                     </h2>
                   </div>
-                  <CreditCard className="h-6 w-6 opacity-60" />
+                  <div className="flex flex-col items-end gap-1">
+                    <CreditCard className="h-6 w-6 opacity-60" />
+                    {patient.blood_group && (
+                      <div className="rounded-md bg-red-500/20 px-2 py-0.5">
+                        <p className="text-xs font-bold text-red-200">{patient.blood_group}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2 text-xs">
@@ -154,6 +161,12 @@ export default function PatientDashboard() {
                     </span>
                   </div>
                 </div>
+                {patient.emergency_contact_name && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/20 backdrop-blur-sm px-5 py-1.5 text-[10px]">
+                    <p className="text-white/60">Emergency Contact</p>
+                    <p className="font-semibold">{patient.emergency_contact_name} ({patient.emergency_contact_relation || 'N/A'}) - {patient.emergency_contact_phone || 'N/A'}</p>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -307,31 +320,47 @@ export default function PatientDashboard() {
               <CardContent className="flex-1 overflow-y-auto space-y-2">
                 {requests?.active?.length ? (
                   requests.active.map((request) => (
-                    <div key={request.id} className="rounded-lg border border-emerald-200 bg-emerald-50/30 p-2 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 shrink-0">
-                          <Users className="h-4 w-4 text-emerald-600" />
+                    <div key={request.id} className="group relative overflow-hidden rounded-lg border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-50 to-teal-50 p-3 transition-all hover:border-emerald-500/40 hover:shadow-md">
+                      <div className="absolute top-0 right-0 h-20 w-20 bg-emerald-500/5 rounded-full -mr-10 -mt-10"></div>
+                      <div className="relative space-y-2">
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm shrink-0">
+                            <Users className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-emerald-900 truncate">Dr. {request.doctor_first_name} {request.doctor_last_name}</p>
+                            <p className="text-xs text-emerald-700 truncate">{request.doctor_specialization || 'General Physician'}</p>
+                            <p className="text-xs text-emerald-600 mt-1">{request.doctor_hospital_name}</p>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold truncate">Dr. {request.doctor_first_name}</p>
-                          <p className="text-[10px] text-muted-foreground truncate">{request.doctor_specialization || 'Specialist'}</p>
+                        
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="flex items-center gap-1 text-emerald-700">
+                            <Clock className="h-3 w-3" />
+                            <span>Until {formatDateIST(request.requested_until)}</span>
+                          </div>
                         </div>
+
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="h-7 text-xs w-full border-red-200 bg-white text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                          disabled={busy} 
+                          onClick={() => handleRequestAction(request.id, 'terminate')}
+                        >
+                          <X className="h-3 w-3 mr-1" />
+                          Terminate Access
+                        </Button>
                       </div>
-                      <p className="text-[10px] text-muted-foreground">Until {formatDateIST(request.requested_until)}</p>
-                      <Button 
-                        size="xs" 
-                        variant="destructive"
-                        className="h-6 text-xs w-full"
-                        disabled={busy} 
-                        onClick={() => handleRequestAction(request.id, 'terminate')}
-                      >
-                        <X className="h-3 w-3 mr-1" />
-                        Terminate
-                      </Button>
                     </div>
                   ))
                 ) : (
-                  <p className="text-xs text-muted-foreground text-center py-4">No active sessions</p>
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <div className="rounded-full bg-muted/30 p-3 mb-2">
+                      <Users className="h-6 w-6 text-muted-foreground/50" />
+                    </div>
+                    <p className="text-xs text-muted-foreground">No active sessions</p>
+                  </div>
                 )}
               </CardContent>
             </Card>

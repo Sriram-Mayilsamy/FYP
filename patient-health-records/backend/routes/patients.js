@@ -13,7 +13,8 @@ const patientSelect = `
   SELECT u.id AS user_id, u.ecard_number, u.email, u.first_name, u.last_name, u.role, u.created_at,
          p.id AS patient_id, p.date_of_birth, p.govt_id_type, p.govt_id_number,
          p.govt_id_proof_url, p.nearby_hospital_name, p.created_by_doctor_id, p.created_by_self,
-         p.profile_visibility,
+         p.profile_visibility, p.blood_group, p.emergency_contact_name, 
+         p.emergency_contact_phone, p.emergency_contact_relation,
          creator_user.first_name AS doctor_first_name,
          creator_user.last_name AS doctor_last_name,
          creator_doc.license_number AS doctor_license_number
@@ -146,6 +147,10 @@ router.post('/self-register', async (req, res) => {
       govt_id_number,
       govt_id_proof_url,
       nearby_hospital_name,
+      blood_group,
+      emergency_contact_name,
+      emergency_contact_phone,
+      emergency_contact_relation,
     } = req.body;
 
     if (!email || !password || !govt_id_type || !govt_id_number || !nearby_hospital_name) {
@@ -171,9 +176,11 @@ router.post('/self-register', async (req, res) => {
       // Create patient record (self created)
       await client.query(
         `INSERT INTO patients
-          (user_id, date_of_birth, govt_id_type, govt_id_number, govt_id_proof_url, nearby_hospital_name, created_by_self)
-         VALUES ($1, $2, $3, $4, $5, $6, true)`,
-        [userId, date_of_birth, govt_id_type, govt_id_number, govt_id_proof_url, nearby_hospital_name]
+          (user_id, date_of_birth, govt_id_type, govt_id_number, govt_id_proof_url, nearby_hospital_name, 
+           blood_group, emergency_contact_name, emergency_contact_phone, emergency_contact_relation, created_by_self)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true)`,
+        [userId, date_of_birth, govt_id_type, govt_id_number, govt_id_proof_url, nearby_hospital_name,
+         blood_group, emergency_contact_name, emergency_contact_phone, emergency_contact_relation]
       );
 
       // Audit log
@@ -222,6 +229,10 @@ router.post('/create-by-doctor', authMiddleware, doctorOnly, async (req, res) =>
       govt_id_number,
       govt_id_proof_url,
       nearby_hospital_name,
+      blood_group,
+      emergency_contact_name,
+      emergency_contact_phone,
+      emergency_contact_relation,
     } = req.body;
     const doctorId = req.user.id;
 
@@ -262,9 +273,12 @@ router.post('/create-by-doctor', authMiddleware, doctorOnly, async (req, res) =>
       // Create patient record (created by doctor)
       await client.query(
         `INSERT INTO patients
-          (user_id, date_of_birth, govt_id_type, govt_id_number, govt_id_proof_url, nearby_hospital_name, created_by_doctor_id, created_by_self)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, false)`,
-        [userId, date_of_birth, govt_id_type, govt_id_number, govt_id_proof_url, nearby_hospital_name, docDbId]
+          (user_id, date_of_birth, govt_id_type, govt_id_number, govt_id_proof_url, nearby_hospital_name, 
+           blood_group, emergency_contact_name, emergency_contact_phone, emergency_contact_relation,
+           created_by_doctor_id, created_by_self)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, false)`,
+        [userId, date_of_birth, govt_id_type, govt_id_number, govt_id_proof_url, nearby_hospital_name,
+         blood_group, emergency_contact_name, emergency_contact_phone, emergency_contact_relation, docDbId]
       );
 
       // Audit log

@@ -33,7 +33,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (mounted) {
       if (success) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        // Use pushNamedAndRemoveUntil to prevent back navigation to login
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/home',
+          (route) => false,
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

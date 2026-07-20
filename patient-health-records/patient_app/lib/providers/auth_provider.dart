@@ -80,6 +80,10 @@ class AuthProvider with ChangeNotifier {
             'profileVisibility': patientData['profile_visibility'],
             'govtIdType': patientData['govt_id_type'],
             'nearbyHospital': patientData['nearby_hospital_name'],
+            'bloodGroup': patientData['blood_group'],
+            'emergencyContactName': patientData['emergency_contact_name'],
+            'emergencyContactPhone': patientData['emergency_contact_phone'],
+            'emergencyContactRelation': patientData['emergency_contact_relation'],
           };
 
           // Store user data
