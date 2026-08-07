@@ -27,6 +27,7 @@ export const visitFields = {
   blood_sugar_pp_mg_dl: '',
   hemoglobin_g_dl: '',
   prescription: '',
+  injections_given: '',
   lab_tests_requested: '',
   follow_up_date: '',
 };
@@ -98,6 +99,7 @@ export function VisitForm({ form, onChange, onSubmit, submitLabel = 'Save Visit'
       <TextField label="Symptoms" name="symptoms" value={form.symptoms} onChange={onChange} />
       <TextField label="Diagnosis" name="diagnosis" value={form.diagnosis} onChange={onChange} />
       <TextField label="Prescription" name="prescription" value={form.prescription} onChange={onChange} />
+      <TextField label="Injections Given" name="injections_given" value={form.injections_given} onChange={onChange} />
       <TextField label="Lab Tests Requested" name="lab_tests_requested" value={form.lab_tests_requested} onChange={onChange} />
       <TextField label="Doctor Notes" name="notes" value={form.notes} onChange={onChange} />
       <Button type="submit">{submitLabel}</Button>

@@ -12,6 +12,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { formatDateIST, formatDateTimeIST } from '@/lib/date';
 import { findPatientByEcard, getUser, logout, requestPatientAccess } from '@/lib/api';
+import { PatientTimelineCharts } from '@/components/medical/patient-timeline-charts';
+
 
 export default function DoctorPatientProfile() {
   const [user, setUser] = useState(null);
@@ -102,20 +104,54 @@ export default function DoctorPatientProfile() {
 
       {patient && (
         <>
-          <Card>
-            <CardHeader>
-              <div className="flex flex-wrap items-center gap-2">
-                <CardTitle>{patient.first_name} {patient.last_name}</CardTitle>
-                <Badge>{patient.ecard_number}</Badge>
-                <Badge variant="outline">{patient.profile_visibility === 'private' ? 'Private' : 'Public'}</Badge>
+          {/* Patient Overview Header Banner (Light Theme) */}
+          <Card className="border border-gray-100 shadow-sm bg-white text-slate-900 overflow-hidden rounded-2xl">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-extrabold text-2xl shadow-md ring-2 ring-blue-100 shrink-0">
+                    {patient.first_name?.[0]}{patient.last_name?.[0]}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+                        {patient.first_name} {patient.last_name}
+                      </h2>
+                      <Badge className="bg-blue-600 text-white font-mono px-2.5 py-0.5 shadow-sm">
+                        {patient.ecard_number}
+                      </Badge>
+                      <Badge className="bg-blue-50 text-blue-700 border-blue-100 text-sm px-2 py-0.5">
+                        {patient.profile_visibility === 'private' ? '🔒 Private Record' : '🌐 Public Profile'}
+                      </Badge>
+                      {patient.blood_group && (
+                        <Badge className="bg-rose-600 text-white font-bold">
+                          {patient.blood_group}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-600 flex items-center gap-2">
+                      <span>{patient.email}</span>
+                      <span>•</span>
+                      <span>DOB: {formatDateIST(patient.date_of_birth)}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-4 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6 text-xs text-slate-600">
+                  <div className="space-y-1">
+                    <span className="text-[11px] text-slate-600 font-medium block uppercase tracking-wider">Govt Identity</span>
+                    <p className="font-semibold text-slate-900">{patient.govt_id_type?.toUpperCase()}: {patient.govt_id_number}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] text-slate-600 font-medium block uppercase tracking-wider">Registered Hospital</span>
+                    <p className="font-semibold text-slate-900">{patient.nearby_hospital_name || 'General Hospital'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] text-slate-600 font-medium block uppercase tracking-wider">Timeline Records</span>
+                    <p className="font-semibold text-blue-600">{visits.length} Visit Entries</p>
+                  </div>
+                </div>
               </div>
-              <CardDescription>{patient.email}</CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-3 text-sm text-muted-foreground md:grid-cols-2">
-              <p>Date of Birth: {formatDateIST(patient.date_of_birth)}</p>
-              <p>Govt ID: {patient.govt_id_type}: {patient.govt_id_number}</p>
-              <p>Nearby Hospital: {patient.nearby_hospital_name || 'Not provided'}</p>
-              <p>Total Entries: {visits.length}</p>
             </CardContent>
           </Card>
 
@@ -170,25 +206,29 @@ export default function DoctorPatientProfile() {
               </CardContent>
             </Card>
           ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Previous Entries</CardTitle>
-                <CardDescription>Newest visit first. Detailed entries are read-only.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {visits.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No previous entries yet.</p>
-                ) : (
-                  visits.map((visit) => (
-                    <VisitCard
-                      key={visit.id}
-                      visit={visit}
-                      detailedHref={`/doctor/visits/${visit.id}`}
-                    />
-                  ))
-                )}
-              </CardContent>
-            </Card>
+            <>
+              <PatientTimelineCharts patientId={patient.patient_id} visits={visits} />
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Previous Entries</CardTitle>
+                  <CardDescription>Newest visit first. Detailed entries are read-only.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {visits.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No previous entries yet.</p>
+                  ) : (
+                    visits.map((visit) => (
+                      <VisitCard
+                        key={visit.id}
+                        visit={visit}
+                        detailedHref={`/doctor/visits/${visit.id}`}
+                      />
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+            </>
           )}
         </>
       )}

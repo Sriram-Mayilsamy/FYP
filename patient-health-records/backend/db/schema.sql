@@ -44,11 +44,19 @@ CREATE TABLE IF NOT EXISTS patients (
   profile_visibility VARCHAR(20) NOT NULL DEFAULT 'public',
   created_by_doctor_id INT REFERENCES doctors(id),
   created_by_self BOOLEAN DEFAULT TRUE,
+  blood_group VARCHAR(5),
+  emergency_contact_name VARCHAR(255),
+  emergency_contact_phone VARCHAR(20),
+  emergency_contact_relation VARCHAR(100),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE patients ADD COLUMN IF NOT EXISTS profile_visibility VARCHAR(20) NOT NULL DEFAULT 'public';
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS blood_group VARCHAR(5);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS emergency_contact_name VARCHAR(255);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS emergency_contact_phone VARCHAR(20);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS emergency_contact_relation VARCHAR(100);
 
 CREATE TABLE IF NOT EXISTS patient_access_requests (
   id SERIAL PRIMARY KEY,
@@ -102,12 +110,15 @@ CREATE TABLE IF NOT EXISTS medical_visits (
   blood_sugar_pp_mg_dl NUMERIC(7,2),
   hemoglobin_g_dl NUMERIC(5,2),
   prescription TEXT,
+  injections_given TEXT,
   lab_tests_requested TEXT,
   follow_up_date DATE,
   extra_data JSONB DEFAULT '{}'::jsonb,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE medical_visits ADD COLUMN IF NOT EXISTS injections_given TEXT;
 
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
@@ -124,3 +135,19 @@ CREATE INDEX IF NOT EXISTS idx_patient_access_active ON patient_access_requests(
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_medical_visits_patient_date ON medical_visits(patient_id, visit_date DESC, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_medical_visits_doctor ON medical_visits(doctor_id);
+
+-- Timeline AI Analyses Table
+CREATE TABLE IF NOT EXISTS timeline_ai_analyses (
+  id SERIAL PRIMARY KEY,
+  patient_id INT NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+  doctor_id INT REFERENCES doctors(id) ON DELETE SET NULL,
+  metric_key VARCHAR(50) NOT NULL,
+  status VARCHAR(50) NOT NULL,
+  summary TEXT NOT NULL,
+  detailed_analysis JSONB DEFAULT '{}'::jsonb,
+  data_points_count INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_timeline_ai_analyses_patient ON timeline_ai_analyses(patient_id, metric_key, created_at DESC);
+

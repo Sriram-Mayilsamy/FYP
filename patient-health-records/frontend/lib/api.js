@@ -131,3 +131,10 @@ export const importMedicalReport = (file) => {
 
 export const getPatientDetails = (patientUserId) =>
   api.get(`/patients/admin/patient/${patientUserId}`);
+
+export const analyzePatientTimeline = (patient_id, metric_key) =>
+  api.post('/ai/analyze-timeline', { patient_id, metric_key });
+
+export const getPatientTimelineAnalyses = (patientId) =>
+  api.get(`/ai/timeline-analyses/${patientId}`);
+

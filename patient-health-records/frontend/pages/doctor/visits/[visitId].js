@@ -43,6 +43,7 @@ const sections = [
       ['symptoms', 'Symptoms'],
       ['diagnosis', 'Diagnosis'],
       ['prescription', 'Prescription'],
+      ['injections_given', 'Injections Given'],
       ['lab_tests_requested', 'Lab Tests Requested'],
       ['notes', 'Doctor Notes'],
     ],

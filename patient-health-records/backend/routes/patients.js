@@ -601,6 +601,7 @@ router.post('/:patient_id/visits', authMiddleware, doctorOnly, async (req, res) 
       blood_sugar_pp_mg_dl,
       hemoglobin_g_dl,
       prescription,
+      injections_given,
       lab_tests_requested,
       follow_up_date,
       extra_data,
@@ -621,7 +622,7 @@ router.post('/:patient_id/visits', authMiddleware, doctorOnly, async (req, res) 
         temperature_c, pulse_bpm, respiratory_rate_bpm, oxygen_saturation_percent,
         systolic_bp, diastolic_bp, blood_sugar_fasting_mg_dl,
         blood_sugar_random_mg_dl, blood_sugar_pp_mg_dl, hemoglobin_g_dl,
-        prescription, lab_tests_requested, follow_up_date, extra_data
+        prescription, injections_given, lab_tests_requested, follow_up_date, extra_data
       )
       VALUES (
         $1, $2, COALESCE($3, CURRENT_DATE), COALESCE($4, CURRENT_TIME), COALESCE($5, $6), $7,
@@ -629,7 +630,7 @@ router.post('/:patient_id/visits', authMiddleware, doctorOnly, async (req, res) 
         $14, $15, $16, $17,
         $18, $19, $20,
         $21, $22, $23,
-        $24, $25, $26, COALESCE($27, '{}'::jsonb)
+        $24, $25, $26, $27, COALESCE($28, '{}'::jsonb)
       )
       RETURNING *`,
       [
@@ -657,6 +658,7 @@ router.post('/:patient_id/visits', authMiddleware, doctorOnly, async (req, res) 
         blood_sugar_pp_mg_dl || null,
         hemoglobin_g_dl || null,
         prescription || null,
+        injections_given || null,
         lab_tests_requested || null,
         follow_up_date || null,
         extra_data || {},

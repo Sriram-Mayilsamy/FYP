@@ -19,6 +19,7 @@ export function VisitCard({ visit, detailedHref }) {
         <p><span className="text-foreground">Complaint:</span> {visit.chief_complaint || 'Not provided'}</p>
         <p><span className="text-foreground">Diagnosis:</span> {visit.diagnosis || 'Not provided'}</p>
         <p><span className="text-foreground">Prescription:</span> {visit.prescription || 'Not provided'}</p>
+        <p><span className="text-foreground">Injections:</span> {visit.injections_given || 'Not provided'}</p>
         {detailedHref && (
           <div>
             <Button variant="outline" size="sm" asChild>
