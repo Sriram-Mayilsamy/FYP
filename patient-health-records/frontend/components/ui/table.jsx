@@ -13,11 +13,11 @@ export function TableBody({ className, ...props }) {
 }
 
 export function TableRow({ className, ...props }) {
-  return <tr className={cn('border-b transition-colors hover:bg-muted/50', className)} {...props} />;
+  return <tr className={cn('border-b border-border/70 hover:bg-accent/40', className)} {...props} />;
 }
 
 export function TableHead({ className, ...props }) {
-  return <th className={cn('h-10 px-3 text-left align-middle font-medium text-muted-foreground', className)} {...props} />;
+  return <th className={cn('h-10 px-3 text-left align-middle text-xs font-semibold uppercase tracking-wide text-muted-foreground', className)} {...props} />;
 }
 
 export function TableCell({ className, ...props }) {

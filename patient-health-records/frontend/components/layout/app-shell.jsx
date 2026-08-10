@@ -1,24 +1,25 @@
 import Link from 'next/link';
-import { LogOut } from 'lucide-react';
+import { HeartPulse, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 export function AppShell({ title, description, user, onLogout, children, actions }) {
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,#f3f4f6,transparent_34rem)] px-4 py-6 sm:px-6 lg:px-8">
+    <main className="min-h-screen px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
-        <header className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <header className="flex flex-col gap-5 rounded-2xl border border-primary/10 bg-card/90 p-5 shadow-[0_10px_28px_rgba(15,43,70,0.06)] sm:flex-row sm:items-end sm:justify-between sm:p-6">
           <div className="space-y-3">
-            <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-              Patient Health Records
+            <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+              <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary text-primary-foreground"><HeartPulse className="h-4 w-4" /></span>
+              CareLedger
             </Link>
             <div>
-              <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+              <h1 className="text-3xl font-semibold tracking-tight text-foreground">{title}</h1>
               {description && <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{description}</p>}
             </div>
             {user && (
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="secondary">{user.role}</Badge>
+                <Badge variant="secondary" className="capitalize">{user.role}</Badge>
                 <Badge variant="outline">{user.email}</Badge>
                 {user.ecard_number && <Badge>{user.ecard_number}</Badge>}
               </div>

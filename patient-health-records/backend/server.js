@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth');
 const doctorRoutes = require('./routes/doctors');
 const patientRoutes = require('./routes/patients');
 const aiRoutes = require('./routes/ai');
+const blockchainRoutes = require('./routes/blockchainRoutes');
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/blockchain', blockchainRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

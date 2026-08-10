@@ -109,6 +109,10 @@ export default function VisitDetail() {
               <div className="flex flex-wrap items-center gap-2">
                 <CardTitle>{patient.first_name} {patient.last_name}</CardTitle>
                 <Badge>{patient.ecard_number}</Badge>
+                <Badge variant="outline">Record ID: {visit.id}</Badge>
+                <Badge variant={visit.blockchain_transaction_id ? 'default' : 'secondary'}>
+                  {visit.blockchain_transaction_id ? 'Blockchain registered' : 'Not registered'}
+                </Badge>
               </div>
               <CardDescription>
                 Entry by Dr. {visit.doctor_first_name} {visit.doctor_last_name} · {formatDateIST(visit.visit_date)} {formatTimeIST(visit.visit_time)}

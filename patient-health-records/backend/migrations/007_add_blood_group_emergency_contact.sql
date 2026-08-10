@@ -6,10 +6,19 @@ ADD COLUMN IF NOT EXISTS emergency_contact_name VARCHAR(255),
 ADD COLUMN IF NOT EXISTS emergency_contact_phone VARCHAR(20),
 ADD COLUMN IF NOT EXISTS emergency_contact_relation VARCHAR(100);
 
--- Add check constraint for blood group
-ALTER TABLE patients
-ADD CONSTRAINT check_blood_group 
-CHECK (blood_group IS NULL OR blood_group IN ('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'));
+-- Add the check once. PostgreSQL has no ADD CONSTRAINT IF NOT EXISTS syntax.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'check_blood_group'
+      AND conrelid = 'patients'::regclass
+  ) THEN
+    ALTER TABLE patients
+      ADD CONSTRAINT check_blood_group
+      CHECK (blood_group IS NULL OR blood_group IN ('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'));
+  END IF;
+END $$;
 
 -- Add comment
 COMMENT ON COLUMN patients.blood_group IS 'Patient blood group (A+, A-, B+, B-, AB+, AB-, O+, O-)';

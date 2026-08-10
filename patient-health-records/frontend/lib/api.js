@@ -138,3 +138,9 @@ export const analyzePatientTimeline = (patient_id, metric_key) =>
 export const getPatientTimelineAnalyses = (patientId) =>
   api.get(`/ai/timeline-analyses/${patientId}`);
 
+// Blockchain demo APIs: hashes/audit metadata only, never medical content.
+export const verifyMedicalRecord = (visitId) => api.get(`/blockchain/records/${visitId}/verify`);
+export const getBlockchainRecords = () => api.get('/blockchain/records');
+export const getBlockchainAccessHistory = () => api.get('/blockchain/access-history');
+export const getBlockchainStatus = () => api.get('/blockchain/status');
+

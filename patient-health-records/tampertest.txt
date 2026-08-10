@@ -1,0 +1,27 @@
+In Blockchain Audit, note a registered Record ID, for example 3.
+
+Open PowerShell:
+
+psql -U postgres -d patient_health_db
+First save the original value:
+SELECT id, diagnosis, notes
+FROM medical_visits
+WHERE id = 3;
+Tamper with the record:
+UPDATE medical_visits
+SET diagnosis = 'TAMPER TEST - modified outside application'
+WHERE id = 3;
+Return to the Admin Blockchain Audit page and click Verify for record #3.
+Expected result:
+INVALID
+Medical record integrity compromised
+The system recalculates the hash from the changed PostgreSQL record. It no longer matches the immutable hash stored in Ganache.
+After the demo, restore the original diagnosis value you copied in step 3:
+UPDATE medical_visits
+SET diagnosis = 'THE_ORIGINAL_DIAGNOSIS'
+WHERE id = 3;
+If it was originally empty, restore it with:
+UPDATE medical_visits
+SET diagnosis = NULL
+WHERE id = 3;
+Verify again—the result should return to VALID

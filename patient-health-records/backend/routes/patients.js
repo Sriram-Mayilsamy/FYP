@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const pool = require('../config/database');
 const { authMiddleware, patientOnly, doctorOnly, adminOnly } = require('../middleware/auth');
 const { createUniqueEcardNumber } = require('../utils/ecard');
+const blockchain = require('../services/blockchainService');
 
 const router = express.Router();
 
@@ -93,7 +94,7 @@ async function getDoctorAccessState(doctorId, patientId) {
   }
 
   const activeResult = await pool.query(
-    `SELECT id, requested_until, reason, status
+    `SELECT id, requested_until, reason, status, blockchain_request_id
      FROM patient_access_requests
      WHERE patient_id = $1
        AND doctor_id = $2
@@ -116,10 +117,18 @@ async function getDoctorAccessState(doctorId, patientId) {
     [patientId, doctorId]
   );
 
+  const activeRequest = activeResult.rows[0] || null;
+  // For blockchain-backed private requests, PostgreSQL approval alone is insufficient.
+  // Legacy requests without an on-chain id remain readable during the incremental demo rollout.
+  let blockchainApproved = true;
+  if (activeRequest?.blockchain_request_id && blockchain.isConfigured()) {
+    const chainRequest = await blockchain.getAccessRequest(activeRequest.blockchain_request_id);
+    blockchainApproved = chainRequest.status === 1 && chainRequest.expiresAt * 1000 > Date.now();
+  }
   return {
-    canAccess: activeResult.rows.length > 0,
+    canAccess: Boolean(activeRequest) && blockchainApproved,
     privacy: 'private',
-    activeRequest: activeResult.rows[0] || null,
+    activeRequest,
     pendingRequest: pendingResult.rows[0] || null,
   };
 }
@@ -422,22 +431,35 @@ async function updateOwnAccessRequest(req, res, status, extraValues = {}) {
       return res.status(404).json({ error: 'Access request not found' });
     }
 
-    return res.json({ data: result.rows[0] });
+    const updatedRequest = result.rows[0];
+    let blockchainTransactionId = null;
+    if (updatedRequest.blockchain_request_id && blockchain.isConfigured()) {
+      // PostgreSQL remains the permission source; the matching chain event is its immutable audit proof.
+      const chainResult = status === 'approved'
+        ? await blockchain.approveAccess(updatedRequest.blockchain_request_id, updatedRequest.requested_until)
+        : await blockchain.revokeAccess(updatedRequest.blockchain_request_id);
+      blockchainTransactionId = chainResult.transactionId;
+      await pool.query(
+        'UPDATE patient_access_requests SET blockchain_transaction_id = $1 WHERE id = $2',
+        [blockchainTransactionId, updatedRequest.id]
+      );
+    }
+    return res.json({ data: { ...updatedRequest, blockchain_transaction_id: blockchainTransactionId || updatedRequest.blockchain_transaction_id } });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 }
 
-router.post('/access-requests/:request_id/approve', authMiddleware, patientOnly, (req, res) => {
-  updateOwnAccessRequest(req, res, 'approved');
+router.post('/access-requests/:request_id/approve', authMiddleware, patientOnly, async (req, res) => {
+  await updateOwnAccessRequest(req, res, 'approved');
 });
 
-router.post('/access-requests/:request_id/reject', authMiddleware, patientOnly, (req, res) => {
-  updateOwnAccessRequest(req, res, 'rejected');
+router.post('/access-requests/:request_id/reject', authMiddleware, patientOnly, async (req, res) => {
+  await updateOwnAccessRequest(req, res, 'rejected');
 });
 
-router.post('/access-requests/:request_id/terminate', authMiddleware, patientOnly, (req, res) => {
-  updateOwnAccessRequest(req, res, 'revoked', { revoked: true });
+router.post('/access-requests/:request_id/terminate', authMiddleware, patientOnly, async (req, res) => {
+  await updateOwnAccessRequest(req, res, 'revoked', { revoked: true });
 });
 
 // Admin view all patient records
@@ -563,12 +585,27 @@ router.post('/:patient_id/access-requests', authMiddleware, doctorOnly, async (r
       [patient_id, doctor.id, reason, requestedUntilDate.toISOString()]
     );
 
+    let blockchainData = null;
+    if (blockchain.isConfigured()) {
+      // The IDs are database identifiers only; no patient data or reason is sent to Ganache.
+      blockchainData = await blockchain.requestAccess(patient_id, doctor.id);
+      await pool.query(
+        `UPDATE patient_access_requests
+         SET blockchain_request_id = $1, blockchain_transaction_id = $2
+         WHERE id = $3`,
+        [blockchainData.requestId, blockchainData.transactionId, result.rows[0].id]
+      );
+    }
+
     await pool.query(
       'INSERT INTO audit_logs (user_id, action, details, created_by) VALUES ($1, $2, $3, $4)',
       [req.user.id, 'patient_access_requested', JSON.stringify({ patient_id, request_id: result.rows[0].id }), req.user.id]
     );
 
-    res.status(201).json({ message: 'Access request sent to patient', request: result.rows[0] });
+    res.status(201).json({
+      message: blockchainData ? 'Access request sent and recorded on blockchain' : 'Access request sent (blockchain demo is not configured)',
+      request: { ...result.rows[0], blockchain_request_id: blockchainData?.requestId, blockchain_transaction_id: blockchainData?.transactionId },
+    });
   } catch (error) {
     res.status(error.statusCode || 500).json({ error: error.message });
   }
@@ -665,12 +702,31 @@ router.post('/:patient_id/visits', authMiddleware, doctorOnly, async (req, res) 
       ]
     );
 
+    const visit = result.rows[0];
+    const recordHash = blockchain.hashMedicalVisit(visit);
+    let blockchainData = null;
+    if (blockchain.isConfigured()) {
+      blockchainData = await blockchain.addMedicalRecord(patient_id, recordHash);
+      // Store tx hash and contract record ID together; the contract itself stores only hash metadata.
+      await pool.query(
+        'UPDATE medical_visits SET blockchain_hash = $1, blockchain_transaction_id = $2 WHERE id = $3',
+        [recordHash, `${blockchainData.transactionId}:${blockchainData.recordId}`, visit.id]
+      );
+      visit.blockchain_hash = recordHash;
+      visit.blockchain_transaction_id = `${blockchainData.transactionId}:${blockchainData.recordId}`;
+    }
+
     await pool.query(
       'INSERT INTO audit_logs (user_id, action, details, created_by) VALUES ($1, $2, $3, $4)',
       [req.user.id, 'medical_visit_created', JSON.stringify({ patient_id, visit_id: result.rows[0].id }), req.user.id]
     );
 
-    res.status(201).json(result.rows[0]);
+    res.status(201).json({
+      ...visit,
+      blockchain: blockchainData
+        ? { status: 'REGISTERED', hash: recordHash, transactionId: blockchainData.transactionId }
+        : { status: 'NOT_CONFIGURED', message: 'Visit saved in PostgreSQL. Configure Ganache to register future visits.' },
+    });
   } catch (error) {
     res.status(error.statusCode || 500).json({ error: error.message });
   }

@@ -10,7 +10,13 @@ export function VisitCard({ visit, detailedHref }) {
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle>{formatDateIST(visit.visit_date)} {formatTimeIST(visit.visit_time)}</CardTitle>
-          <Badge variant="secondary">Dr. {visit.doctor_first_name} {visit.doctor_last_name}</Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline">Record ID: {visit.id}</Badge>
+            <Badge variant={visit.blockchain_transaction_id ? 'default' : 'secondary'}>
+              {visit.blockchain_transaction_id ? 'Blockchain registered' : 'Not registered'}
+            </Badge>
+            <Badge variant="secondary">Dr. {visit.doctor_first_name} {visit.doctor_last_name}</Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="grid gap-3 text-sm text-muted-foreground">

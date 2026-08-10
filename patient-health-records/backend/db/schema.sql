@@ -119,6 +119,11 @@ CREATE TABLE IF NOT EXISTS medical_visits (
 );
 
 ALTER TABLE medical_visits ADD COLUMN IF NOT EXISTS injections_given TEXT;
+-- Blockchain demonstration metadata only. Clinical information remains in PostgreSQL.
+ALTER TABLE medical_visits ADD COLUMN IF NOT EXISTS blockchain_hash VARCHAR(66);
+ALTER TABLE medical_visits ADD COLUMN IF NOT EXISTS blockchain_transaction_id VARCHAR(100);
+ALTER TABLE patient_access_requests ADD COLUMN IF NOT EXISTS blockchain_request_id BIGINT;
+ALTER TABLE patient_access_requests ADD COLUMN IF NOT EXISTS blockchain_transaction_id VARCHAR(100);
 
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
@@ -135,6 +140,7 @@ CREATE INDEX IF NOT EXISTS idx_patient_access_active ON patient_access_requests(
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_medical_visits_patient_date ON medical_visits(patient_id, visit_date DESC, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_medical_visits_doctor ON medical_visits(doctor_id);
+CREATE INDEX IF NOT EXISTS idx_medical_visits_blockchain_hash ON medical_visits(blockchain_hash);
 
 -- Timeline AI Analyses Table
 CREATE TABLE IF NOT EXISTS timeline_ai_analyses (

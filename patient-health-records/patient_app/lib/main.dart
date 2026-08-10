@@ -8,6 +8,7 @@ import 'screens/home_screen.dart';
 import 'screens/pending_requests_screen.dart';
 import 'screens/active_sessions_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/blockchain_records_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
           '/pending-requests': (context) => const PendingRequestsScreen(),
           '/active-sessions': (context) => const ActiveSessionsScreen(),
           '/settings': (context) => const SettingsScreen(),
+          '/my-records': (context) => const BlockchainRecordsScreen(),
         },
       ),
     );

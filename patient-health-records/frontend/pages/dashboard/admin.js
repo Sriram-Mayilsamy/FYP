@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { AppShell } from '@/components/layout/app-shell';
 import { Badge } from '@/components/ui/badge';
@@ -82,6 +83,7 @@ export default function AdminDashboard() {
       description="Approve doctor accounts, inspect patient origins, and search any user by hospital e-card."
       user={user}
       onLogout={handleLogout}
+      actions={<Button variant="outline" asChild><Link href="/dashboard/admin/blockchain-audit">Blockchain Audit</Link></Button>}
     >
       <Card>
         <CardHeader>

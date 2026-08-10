@@ -1,0 +1,43 @@
+Terminal 1 — Ganache + contract
+First check if Ganache is already running:
+Test-NetConnection 127.0.0.1 -Port 8545
+If it shows TcpTestSucceeded : True, Ganache is already running. Leave it alone and continue to Terminal 2.
+If it shows False, start a fresh local chain:
+cd C:\Users\srira\Desktop\FYP\FYP\patient-health-records\backend
+npm.cmd run blockchain:ganache
+Keep that terminal open. Then open another terminal and deploy the contract:
+cd C:\Users\srira\Desktop\FYP\FYP\patient-health-records\backend
+npm.cmd run blockchain:deploy
+Because the setup uses deterministic Ganache, the contract deploys to the configured local address.
+Terminal 2 — Database migration + backend
+cd C:\Users\srira\Desktop\FYP\FYP\patient-health-records\backend
+npm.cmd run db:schema
+npm.cmd run dev
+Keep it running. Confirm this works:
+http://localhost:5000/api/health
+If you need the demo accounts again, stop the backend, run this once, then restart it:
+npm.cmd run db:seed
+npm.cmd run dev
+Terminal 3 — React frontend
+cd C:\Users\srira\Desktop\FYP\FYP\patient-health-records\frontend
+npm.cmd run dev
+Open:
+http://localhost:3000
+Demo credentials:
+Admin: admin@hospital.com
+Password: admin123
+
+Patient: patient1@example.com
+Password: patient123
+If dependencies are missing
+Run once in each project before starting it:
+npm.cmd install
+Quick blockchain demo
+Register and approve a doctor as admin.
+Doctor creates a patient visit.
+Log in as admin.
+Open Blockchain Audit.
+In Medical Record Audit Queue, click Verify for the new record.
+You should see:
+VALID
+Record integrity verified

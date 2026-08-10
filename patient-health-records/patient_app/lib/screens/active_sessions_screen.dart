@@ -186,6 +186,16 @@ class _ActiveSessionsScreenState extends State<ActiveSessionsScreen> {
                           ),
                         ),
                       const SizedBox(height: 4),
+                      Text(
+                        'Access status: ${request['status'] ?? 'approved'}',
+                        style: TextStyle(fontSize: 12, color: Colors.green[700]),
+                      ),
+                      if (request['blockchain_transaction_id'] != null)
+                        Text(
+                          'Blockchain audit recorded',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        ),
+                      const SizedBox(height: 4),
                       Row(
                         children: [
                           Icon(

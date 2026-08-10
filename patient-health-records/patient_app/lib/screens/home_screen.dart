@@ -165,13 +165,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ListTile(
                         leading: const Icon(Icons.medical_services, size: 28),
                         title: const Text('My Records'),
-                        subtitle: const Text('View your medical history'),
+                        subtitle: const Text('View blockchain verification status'),
                         trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Coming soon!')),
-                          );
-                        },
+                        onTap: () => Navigator.of(context).pushNamed('/my-records'),
                       ),
                     ],
                   );
